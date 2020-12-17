@@ -90,11 +90,11 @@ int main(int argc, char* argv[]) {
     while(!Event::eventHeap.empty()){
         Event *e = Event::eventHeap.top();//Get the event on top of the queue
         e->process();//Process the event and change the state of simulation
-        delete Event::eventHeap.top();//Delete event from memory
-        Event::eventHeap.pop();//Delete the event from queue
         if(Event::eventHeap.empty()){
             lastEventTime = e->time;//Recording last event time for output
         }
+        delete Event::eventHeap.top();//Delete event from memory
+        Event::eventHeap.pop();//Delete the event from queue
     }
 
     // float sumOfTurnAroundTimes = 0;//Recording sum of all turnaround times for output
