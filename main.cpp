@@ -22,102 +22,103 @@ int main(int argc, char* argv[]) {
     ofstream outfile;
     outfile.open(outfile_name);
 
-    int numOfHackers;
+    int numOfHackers;//Reading number of hackers
     infile >> numOfHackers;
-    vector<Hacker*> hackers;
+    vector<Hacker*> hackers;//creating a hacker list to store hacker objects
 
     for (int i = 1; i <= numOfHackers; i++)
     {
-        //CREATE HACKER with ID = i;
-        //PUT IN hackers LIST
+        //Create hackers with consecutive ID's put in hackers LIST
         Hacker *h = new Hacker(i);
         hackers.push_back(h);
+
         float arrivalTime;
-        infile >> arrivalTime;
-        //CREATE ARRIVAL EVENT
-        //PUT EVENT TO HEAP
+        infile >> arrivalTime;//Reading arrival times of hackers
+        //Create arrival events for hackers consecutively
         arrivalEvent *e = new arrivalEvent(h,arrivalTime);
         Event::eventHeap.push(e);
     }
-    int totalCommits;
-    int totalCommitLength=0;
+
+    int totalCommits;//Total number of codes commited by hackers
+    int sumOfCommitLengths=0;//Recording sum of all commits' lengths for output
     infile >> totalCommits;
     for (int i = 0; i < totalCommits; i++)
     {
         int hackerID,numOfLines;
         float commitTime;
         infile >> hackerID >> numOfLines >> commitTime;
-        //CREATE COMMIT EVENT(hackerID,numOfLines,commitTime)
-        totalCommitLength+= numOfLines;
+        sumOfCommitLengths+= numOfLines;
+        //Create commit events for given hackers with given number of lines and time
         commitEvent *e1 = new commitEvent(hackers[hackerID-1],numOfLines,commitTime);
-        Event::eventHeap.push(e1);
-        //PUT EVENT TO HEAP
+        Event::eventHeap.push(e1);//PUT EVENT TO HEAP
     }
-    int numOfQattempts;
+
+    int numOfQattempts;//Total number of attempts to enqueue
     infile >> numOfQattempts;
     for (int i = 0; i < numOfQattempts; ++i)
     {
         int hackerID;
         float attemptTime;
         infile >> hackerID >> attemptTime;
-        //CREATE qAttempt EVENT
-        //PUT EVENT TO HEAP
+        //Create queue attempt event for given hacker with given time
         qAttemptEvent *e2 = new qAttemptEvent(hackers[hackerID-1],attemptTime);
-        Event::eventHeap.push(e2);
+        Event::eventHeap.push(e2);//PUT EVENT TO HEAP
     }
+
     int numOfStickerDesks;
     infile >> numOfStickerDesks;
     for (int i = 0; i < numOfStickerDesks; ++i)
     {
         float serviceTime;
         infile >> serviceTime;
-        //CREATE DESK WITH ID = i, serviceTime;
-        //PUT IN stickerdesks LIST
+        //Create sticker desks with given service times
         Desk *d = new Desk(i,serviceTime);
         Event::stickerDesks.push_back(d);
     }
+
     int numOfHoodieDesks;
     infile >> numOfHoodieDesks;
     for (int i = 0; i < numOfHoodieDesks; ++i)
     {
         float serviceTime;
         infile >> serviceTime;
-        //CREATE DESK WITH ID = i, serviceTime;
-        //PUT IN hoodiedesks LIST
+        //Create hoodie desks with given service times
          Event::hoodieDesks.push_back(new Desk(i,serviceTime));
     }
+    // EVENT SIMULATION 
     float lastEventTime = 0;
     while(!Event::eventHeap.empty()){
-        Event *e = Event::eventHeap.top();
-        e->process();
-        delete Event::eventHeap.top();
-        Event::eventHeap.pop();
+        Event *e = Event::eventHeap.top();//Get the event on top of the queue
+        e->process();//Process the event and change the state of simulation
+        delete Event::eventHeap.top();//Delete event from memory
+        Event::eventHeap.pop();//Delete the event from queue
         if(Event::eventHeap.empty()){
-            lastEventTime = e->time;
+            lastEventTime = e->time;//Recording last event time for output
         }
     }
-    float sum = 0;
-    for (int j = 0; j < Event::qE.size(); ++j) {
-        sum+=Event::dL[j]-Event::qE[j];
-    }
-    float x = Event::toplam;
-    float avgNumOfGiftsPerHacker = 0;
-    float avgWaitingStickerQ = 0;
-    int totalSQattempts = 0;
-    float avgWaitingHoodieQ = 0;
-    int totalHQattempts = 0;
+
+    // float sumOfTurnAroundTimes = 0;//Recording sum of all turnaround times for output
+    // for (int j = 0; j < Event::qE.size(); ++j) {
+    //     sumOfTurnAroundTimes+=Event::dL[j]-Event::qE[j];
+    // }
     float avgNumOfCommits = (float)totalCommits/hackers.size();
-    float avgCommitLength = (float)totalCommitLength/totalCommits;
+    float avgCommitLength = (float)sumOfCommitLengths/totalCommits;
+
+    float totalNumOfGiftsPerHacker = 0;
+    float totalWaitingStickerQ = 0;
+    int totalQattempts = 0;
+    float totalWaitingHoodieQ = 0;
     int IDofMostWaitedHacker=-1;
     float mostTimeSpentInQ=-1;
     int IDofLeastWaitedHacker=-1;
     float leastTimeSpentInQ = -1;
     bool notFound = true;
+
     for(auto h : hackers){
-        avgNumOfGiftsPerHacker += h->gifts;
-        avgWaitingStickerQ += h->tot(h->stickerQueueTimeSpent);
-        totalSQattempts += h->stickerQueueEntrances;
-        avgWaitingHoodieQ += h->tot(h->hoodieQueueTimeSpent);
+        totalNumOfGiftsPerHacker += h->gifts;
+        totalWaitingStickerQ += h->tot(h->stickerQueueTimeSpent);
+        totalQattempts += h->stickerQueueEntrances;
+        totalWaitingHoodieQ += h->tot(h->hoodieQueueTimeSpent);
         float totalQtime = h->tot(h->stickerQueueTimeSpent)+ h->tot(h->hoodieQueueTimeSpent);
         if( (totalQtime - mostTimeSpentInQ) > 0.00001){
             IDofMostWaitedHacker = h->hackerID;
@@ -132,10 +133,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    sum /= (float)avgNumOfGiftsPerHacker;//to calculate before division of gifts
-    avgNumOfGiftsPerHacker /= hackers.size();
-    avgWaitingStickerQ /= totalSQattempts;
-    avgWaitingHoodieQ /= totalSQattempts;
+    //sumOfTurnAroundTimes /= (float)totalNumOfGiftsPerHacker;//to calculate before division of gifts
+    float avgNumOfGiftsPerHacker = totalNumOfGiftsPerHacker/hackers.size();
+    float avgWaitingStickerQ = totalWaitingStickerQ/totalQattempts;
+    float avgWaitingHoodieQ = totalWaitingHoodieQ/totalQattempts;
     outfile << fixed;
     outfile << setprecision(3) << Event::maxSQsize << endl;
     outfile << setprecision(3) << Event::maxHQsize << endl;
@@ -144,7 +145,7 @@ int main(int argc, char* argv[]) {
     outfile << setprecision(3) << avgWaitingHoodieQ << endl;
     outfile << setprecision(3) << avgNumOfCommits << endl;
     outfile << setprecision(3) << avgCommitLength << endl;
-    outfile << setprecision(3) << sum << endl;
+    outfile << setprecision(3) << Event::toplam/totalNumOfGiftsPerHacker << endl;
     outfile << setprecision(3) << Event::numOfInvalidQattempts << endl;
     outfile << setprecision(3) << Event::numOfGiftAbuse << endl;
     outfile << setprecision(3) << IDofMostWaitedHacker << " " << mostTimeSpentInQ << endl;

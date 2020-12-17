@@ -14,8 +14,8 @@ int Event::maxHQsize =0;
 int Event::numOfInvalidQattempts = 0;
 int Event::numOfGiftAbuse =0;
 float Event::toplam = 0;
-vector<float> Event::qE;
-vector<float> Event::dL;
+//vector<float> Event::qE;
+//vector<float> Event::dL;
 Event::Event(Hacker *_owner,float _time) {
     //cout << "Constructing Event"<< endl;
     this->owner = _owner;
@@ -98,8 +98,8 @@ void qAttemptEvent:: process() {
 
     if (this->owner->canEnqueue()){
         this->owner->stickerQueueEntrance = this->time;//Queue Entrance time
-        toplam -= this->time;
-        this->qE.push_back(this->time);
+        //toplam -= this->time;
+        //this->qE.push_back(this->time);
         this->owner->stickerQueueEntrances++;
         bool performed = false;//Are there any available sticker desk
         for (auto desk : stickerDesks) {
@@ -191,10 +191,11 @@ void leaveHDEvent:: process() {
     if (this->owner->isArrived){
         this->owner->gifts++;
         this->owner->hoodieDeskLeaving = this->time;
-        toplam += this->time;
-        this->dL.push_back(this->time);
+        //toplam += this->time;
+        //this->dL.push_back(this->time);
+        toplam += this->time - this->owner->stickerQueueEntrance;
         float timeSpent = this->owner->hoodieDeskLeaving - this->owner->stickerQueueEntrance;
-        this->owner->turnAroundTime.push_back(timeSpent);
+        //this->owner->turnAroundTime.push_back(timeSpent);
         for (auto hDesk : hoodieDesks) {
             if (this->owner->hackerID == hDesk->customerID) {
                 if (!hoodieQ.empty()) {

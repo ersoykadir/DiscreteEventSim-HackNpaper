@@ -44,8 +44,8 @@ public:
     static vector<Desk*>stickerDesks;
     static vector<Desk*>hoodieDesks;
     //static vector<Hacker*>hackers;
-    static vector<float> qE;
-    static vector<float> dL;
+    //static vector<float> qE;
+    //static vector<float> dL;
     static float toplam;
     float time;
     Hacker* owner = NULL;
