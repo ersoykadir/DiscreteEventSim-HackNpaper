@@ -159,5 +159,17 @@ int main(int argc, char* argv[]) {
         hackers[i] = NULL;
     }
     hackers.clear();
+    for (int i = 0; i < Event::stickerDesks.size(); ++i)
+    {
+        delete Event::stickerDesks[i];
+        Event::stickerDesks[i] = NULL;
+    }
+    Event::stickerDesks.clear();
+    for (int i = 0; i < Event::hoodieDesks.size(); ++i)
+    {
+        delete Event::hoodieDesks[i];
+        Event::hoodieDesks[i] = NULL;
+    }
+    Event::hoodieDesks.clear();
     return 0;
 }
